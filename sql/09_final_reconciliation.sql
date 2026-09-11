@@ -53,6 +53,7 @@ eligible_sends AS (
 
     -- Restrict communication-log rows to the requested
     -- merchant, communication type, and October 2026 period.
+    -- Using DATE() for robust SQLite timestamp handling.
     SELECT
         cl.id AS send_id,
         cl.customer_id,
@@ -64,8 +65,8 @@ eligible_sends AS (
         ON ec.campaign_id = cl.communication_id
     WHERE cl.merchant_id = 501
       AND cl.communication_type = '2'
-      AND cl.sent_time >= '2026-10-01'
-      AND cl.sent_time < '2026-11-01'
+      AND DATE(cl.sent_time) >= '2026-10-01'
+      AND DATE(cl.sent_time) < '2026-11-01'
 ),
 
 root_classification AS (
