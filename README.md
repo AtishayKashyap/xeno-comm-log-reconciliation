@@ -23,6 +23,20 @@ The investigation starts from the raw `communication_log` data and reconciles th
 
 *For a comprehensive step-by-step breakdown of the SQL logic, retry chains, and validation checks, please see the full analysis in [`analysis/reconciliation_bridge.md`](analysis/reconciliation_bridge.md).*
 
+### Reconciliation Data Flow
+
+```mermaid
+graph TD
+    A[Raw Log: 30 Sends] --> B(Filter: Campaign Status)
+    B -->|Remove 4| C[Eligible: 26 Sends]
+    C --> D(Deduplicate Retry Chains)
+    D -->|Remove 5| E[Distinct Base: 21]
+    E --> F(Apply Standalone Logic)
+    F -->|Add 1| G[Final Target Base: 22]
+    
+    style A fill:#f9f9f9,stroke:#333,stroke-width:2px
+    style G fill:#d4edda,stroke:#28a745,stroke-width:3px
+```
 ## Notable Data Observation
 One detail that stood out was that communication-log rows can already exist for a campaign whose creation workflow is still `approval_awaiting`. This means the presence of a send event alone is not sufficient to determine reporting eligibility. I also found that repeated customers do not have one universal treatment: repeated customers across a retry chain are counted once, while repeated send events within a standalone campaign remain separate qualifying events. This distinction was essential to reconciling the reported number of **22**.
 
